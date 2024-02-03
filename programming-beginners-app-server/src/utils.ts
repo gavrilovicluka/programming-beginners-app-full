@@ -9,8 +9,10 @@ function simulateAI(userMessage: string) {
     const lowerCaseUserMessage = userMessage.toLowerCase();
     const getTaskKeywords = ['posalji', 'daj', 'generisi'];
     const getTaskTrainingKeywords = ['uvodni', 'trening'];
+    const helpKeywords = ['help', 'pomoc', 'pomogni'];
     const sendTask = getTaskKeywords.some(keyword => lowerCaseUserMessage.includes(keyword));
     const sendTaskTraining = getTaskTrainingKeywords.some(keyword => lowerCaseUserMessage.includes(keyword));
+    const sendHelp = helpKeywords.some(keyword => lowerCaseUserMessage.includes(keyword));
 
     let response;
 
@@ -40,6 +42,12 @@ function simulateAI(userMessage: string) {
         response = {
             taskTraining: taskTraining
         }
+    } else if (sendHelp) {
+        // Slanje pomoci
+        const helpText = task.getHelp(userMessage);
+        response = {
+            message: helpText
+        }
     } else {
         if (!finishedTaskTraining) {
             const reply = task.taskTrainingReply(taskText, userMessage);
@@ -60,7 +68,7 @@ function simulateAI(userMessage: string) {
             }
         }
     }
-    
+
     return response;
 }
 

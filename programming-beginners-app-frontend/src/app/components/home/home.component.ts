@@ -4,11 +4,12 @@ import { TaskTextComponent } from '../task-text/task-text.component';
 import { NextButtonComponent } from '../next-button/next-button.component';
 import { Router } from '@angular/router';
 import { BASE_URL } from '../../../../config/config';
+import { ShapeDividerComponent } from '../shape-divider/shape-divider.component';
 
 @Component({
   selector: 'app-home',
   standalone: true,
-  imports: [CommonModule, TaskTextComponent, NextButtonComponent],
+  imports: [CommonModule, TaskTextComponent, NextButtonComponent, ShapeDividerComponent],
   templateUrl: './home.component.html',
   styleUrl: './home.component.css'
 })
@@ -16,6 +17,7 @@ export class HomeComponent {
   showTask: boolean = false;
   taskText: string = "";
   miniTask: string = "";
+  owlImage: string = "assets/images/owl1.gif";
 
   constructor(private router: Router) {
     // this.taskText = "Unositi parne brojeve sve dok je njihova suma manja od 58."

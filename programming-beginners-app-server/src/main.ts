@@ -38,8 +38,6 @@ app.post('/sendMessage', (req, res) => {
     const response = simulateAI(userMessage);
 
     res.send(response);
-
-
 });
 
 app.listen(PORT, () => {

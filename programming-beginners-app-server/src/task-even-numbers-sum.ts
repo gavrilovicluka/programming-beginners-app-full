@@ -8,6 +8,7 @@ export class EvenNumbersSum {
     currentSum: number = 0;
     currentNumbers: number[] = [];
     numbers: number[] = [];
+    trainingText: string = '';
 
     disableInput: boolean = false;
     disableButton: boolean = false;
@@ -19,16 +20,66 @@ export class EvenNumbersSum {
     secondStepAnswer: boolean = false;
     secondStepAgain: boolean = false;
     readyForSecondStep: boolean = false;
-    owlImage: string = '';
     finishedTaskTraining: boolean = false;
     task: string = '';
+    isEnd: boolean = false;
 
     constructor(text: string) {
         this.text = text;
         this.goalValue = getNumberFromText(this.text);
         this.numbers = generateRandomNumbers();
+        this.trainingText = `Kao što vidiš u tekstu zadatka, potrebna je suma parnih brojeva. Za početak napiši sve parne brojeve od ponuđenih! Ovo su ponuđeni brojevi: ${this.numbers} `;
     }
 
+    getHelp(userMessage: string): string {
+        const number = getNumberFromText(userMessage);
+
+        // Vraca pomoc za uvodni zadatak
+        if (userMessage.includes(this.trainingText)) {
+            return 'Treba da odrediš koji od ponuđenih brojeva su parni. Parni brojevi su oni koji daju ostatak 0 kada se podele sa 2 (npr. 2, 4, 6...). '
+        }
+
+        // Odgovor na pitanje da li moze da se krene sa igrom
+        if (!this.isFirstPartFinished && this.firstStepStartFlag) {
+            return 'U polju za unos teksta napiši svoj odgovor da bi započeo sa zadatkom!';
+        }
+        // Odgovor na pitanje da li da se menjaju uloge
+        else if (!this.isFirstPartFinished && this.firstStepAnswer) {
+            return 'Ukoliko si razumeo zadatak, napiši potvrdan odgovor! Ukoliko imaš još nekih nejasnoća, napiši odričan odgovor kako bismo ponovo prošli kroz zadatak! ';
+        }
+        // Pocetnik unosi brojeve kad je u ulozi korisnika 
+        else if (!this.isFirstPartFinished && number === -1) {
+            return "Unesi neki broj u polju za unos kako bi nastavio sa rađenjem zadatka! ";
+        }
+        // Pocetniku je postavljeno pitanje da li je spreman da zamene uloge
+        else if (this.readyForSecondStep) {
+            return 'U polju za unos teksta napiši svoj odgovor kako bi započeo sa drugim delom zadatka!';
+        }
+
+        if (this.isEnd) {
+            return 'Završio si sa ovim zadatkom! Ukoliko želiš novi zadatak, klikni na dugme!'
+        }
+
+        // Pitanje da li treba ispocetka drugi deo
+        if (this.secondStepAnswer) {
+            return 'Ukoliko si razumeo zadatak i ne želiš ponovo da radiš ovaj deo, napiši odričan odgovor! Ukoliko imaš još nekih nejasnoća, napiši potvrdan odgovor kako bismo ponovo prošli kroz ovaj deo zadatka! ';
+
+        }
+
+        if (!this.firstStepStartFlag) {
+            // Drugi deo - pocetnik u ulozi programa
+            if (this.isFirstPartFinished) {
+                return 'Prati brojeve koje unosim i njihovu sumu. Ukoliko je ta suma jednaka ili veća od granice koja stoji u tekstu zadatka, to znači da je kraj zadatka! '
+
+            }
+            // Prvi deo - pocetnik u ulozi korisnika
+            else {
+                return "Unesi svoj naredni broj! "
+            }
+        }
+
+        return '';
+    }
 
     generateReply(userMessage: string): string {
         const number = getNumberFromText(userMessage);
@@ -91,10 +142,11 @@ export class EvenNumbersSum {
         // Pitanje da li treba ispocetka drugi deo
         if (this.secondStepAnswer) {
             if (isNegative) {
-                this.text = "Odlično! Ukoliko želiš da radiš druge zadatke, možeš da klikneš na dugme <i>Početak<i>.";
+                this.text = "Odlično! Ukoliko želiš da radiš druge zadatke, možeš da klikneš na dugme <i>Novi zadatak<i>.";
                 userMessage = "";
                 this.disableInput = true;
                 this.disableButton = true;
+                this.isEnd = true;
                 return this.text;
             } else if (isPositive) {
                 const additionalMessage: string = "Hajmo onda ispočetka! ";
@@ -113,38 +165,16 @@ export class EvenNumbersSum {
             // Drugi deo - pocetnik u ulozi programa
             if (this.isFirstPartFinished) {
                 // Ako se menjaju uloge, posle 4s aplikacija salje prvi broj
-                if (this.firstStepAnswer) {
-                    // setTimeout(() => {
-                    //     this.text = this.secondPart(userMessage);
-                    // }, 4000);
-                    // this.text = this.secondPart(userMessage);
-                    // this.firstStepAnswer = false;
-                }
-                // Ako pocetnik ponovo radi drugi deo, posle 4s aplikacija salje prvi broj
-                else if (this.secondStepAnswer) {
-                    // setTimeout(() => {
-                    //     this.text = this.secondPart(userMessage);
-                    //     this.disableInput = false;
-                    // }, 4000);
-                    // this.secondStepAnswer = false;
-                } else {
+                if (!this.firstStepAnswer && !this.secondStepAnswer) {
                     this.text = this.secondPart(userMessage);
                 }
-
             }
             // Prvi deo - pocetnik u ulozi korisnika
             else if (isEven(number)) {
                 this.text = this.firstPart(number);
             } else {
                 this.firstStepAgain = false;
-                if (this.firstStepAgain) {
-                    // setTimeout(() => {
-                    //     this.text = "Krećemo ponovo sa igrom! <br><br> Možeš da uneseš prvi broj!"
-                    //     this.disableInput = false;
-                    // }, 4000);
-                    // this.firstStepAgain = false;
-                } else {
-                    this.owlImage = "assets/images/owl-waiting.gif"
+                if (!this.firstStepAgain) {
                     this.text = "Mislim da si malo pogrešio. Pokušaj ponovo."
                 }
             }
@@ -203,7 +233,7 @@ export class EvenNumbersSum {
         const generatedNumber: number = generateRandomNumber(1, 20);
 
         if (this.secondStepStartFlag) {
-            this.text = additionalMessage + `Prvi broj je: ${generatedNumber}. <br><br> Reci mi kada misliš da je potrebno završiti program. `;
+            this.text = additionalMessage + `Prvi broj je: ${generatedNumber}. <br><br> Koji je trenutni zbir i da li je potrebno završiti program? `;
             this.currentNumbers.push(generatedNumber);
             this.secondStepStartFlag = false;
 
@@ -221,15 +251,19 @@ export class EvenNumbersSum {
 
             if (!isEnd) {
                 if (hasEndKeyword && !isNegative) {
-                    this.owlImage = "assets/images/owl-waiting.gif";
                     reply += `Nije kraj još uvek jer je suma ${this.currentSum}! <br><br>`;
                 }
             }
 
             if (isEnd) {
                 if (!hasEndKeyword || (isNegative && hasEndKeyword)) {
-                    this.owlImage = "assets/images/owl-waiting.gif";
-                    this.text = `Trebalo je da kažeš da je kraj programa jer ${this.currentSum} nije manje od ${this.goalValue}! To znači da završavamo sa unosom brojeva! <br><br> Možda nisi shvatio poentu, da li želiš ispočetka? `;
+                    if(isPositive) {
+                        this.text = `Bravo! Zbir koji iznosi ${this.currentSum} sada nije manji od ${this.goalValue}, što znači da si shvatio/la kada je zadatak gotov! <br><br> Čestitam!!! <br><br> Da li je potrebno da radimo ovaj deo ispočetka? `;
+                    } else if(isNegative) {
+                        this.text = `Trebalo je da kažeš da je kraj programa jer ${this.currentSum} nije manje od ${this.goalValue}! To znači da završavamo sa unosom brojeva! <br><br> Možda nisi shvatio poentu, da li želiš ispočetka? `;
+                    } else {
+                        this.text = `Trebalo je da kažeš da je kraj programa jer ${this.currentSum} nije manje od ${this.goalValue}! To znači da završavamo sa unosom brojeva! <br><br> Možda nisi shvatio poentu, da li želiš ispočetka? `;
+                    }
                 } else {
                     this.text = `Bravo! Zbir koji iznosi ${this.currentSum} sada nije manji od ${this.goalValue}, što znači da si shvatio/la kada je zadatak gotov! <br><br> Čestitam!!! <br><br> Da li je potrebno da radimo ovaj deo ispočetka? `;
                 }
@@ -245,15 +279,12 @@ export class EvenNumbersSum {
                 if (hasOddKeyword || (isNegative && hasEvenKeyword)) {
                     reply += 'Tako je, broj koji je unet nije paran! <br><br>';
                 } else {
-                    this.owlImage = "assets/images/owl-waiting.gif";
                     reply += 'Nisi primetio/la da je broj koji je malopre unet neparan! <br><br>';
                 }
             } else {
                 if (hasOddKeyword || (isNegative && hasEvenKeyword)) {
-                    this.owlImage = "assets/images/owl-waiting.gif";
                     reply += 'Nije bio unet neparan broj! <br><br>';
                 } else if (isNegative || (isNegative && hasEndKeyword)) {
-                    this.owlImage = "assets/images/owl-approving.gif";
                     reply += 'Tako je, još uvek nije potrebno završiti program! <br><br>';
                 }
             }
@@ -268,14 +299,12 @@ export class EvenNumbersSum {
         if (isEven(generatedNumber)) {
             this.currentSum += generatedNumber;
         }
-        console.log(this.currentNumbers)
-        console.log(this.currentSum)
         return this.text;
     }
 
     getTaskTraining(taskRequest: string): string {
         // Unositi parne brojeve sve dok je njihova suma manja od 58.
-        return `Kao što vidiš u tekstu zadatka, potrebna je suma parnih brojeva. Za početak napiši sve parne brojeve! Ovo su ponuđeni brojevi: ${this.numbers} `
+        return this.trainingText;
 
     }
 
@@ -294,12 +323,6 @@ export class EvenNumbersSum {
         return {
             reply: reply,
             success: isValid
-        }
-
-
-        return {
-            reply: '',
-            success: false
         }
     }
 }

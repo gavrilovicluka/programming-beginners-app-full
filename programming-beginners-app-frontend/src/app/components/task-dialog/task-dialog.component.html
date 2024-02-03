@@ -1,5 +1,14 @@
 <div class="container">
+  <!-- <app-shape-divider></app-shape-divider> -->
+
   <app-task-text [showTask]="true" [taskText]="taskText"></app-task-text>
+
+  <div
+    *ngIf="showHelp"
+    class="help-cloud animate__animated"
+    [innerHTML]="helpText"
+    [ngClass]="{ animate__jackInTheBox: showHelp }"
+  ></div>
 
   <div class="owl animate__animated animate__backInDown">
     <img src="{{ owlImage }}" alt="owl GIF" />
@@ -7,6 +16,16 @@
   </div>
 
   <div class="bottom">
+    <div class="help-button">
+      <button
+        [disabled]="disableHelpButton"
+        class="help-action-button"
+        (click)="help()"
+      >
+        <span>Pomoć!</span>
+      </button>
+    </div>
+
     <div class="prompt">
       <form id="message-form">
         <div class="form-input">
@@ -29,9 +48,11 @@
       </form>
     </div>
 
+    <app-shape-divider></app-shape-divider>
+
     <div class="button">
       <button class="action-button" (click)="goHome()">
-        <span>Početak</span>
+        <span>Novi zadatak</span>
       </button>
     </div>
   </div>

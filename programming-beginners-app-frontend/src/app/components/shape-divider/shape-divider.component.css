@@ -1,0 +1,68 @@
+/* .custom-shape-divider-bottom-1706898193 {
+    position: absolute;
+    bottom: 110px;
+    left: 0;
+    width: 100%;
+    overflow: hidden;
+    line-height: 0;
+}
+
+.custom-shape-divider-bottom-1706898193 svg {
+    position: relative;
+    display: block;
+    width: calc(106% + 1.3px);
+    height: 152px;
+}
+
+.custom-shape-divider-bottom-1706898193 .shape-fill {
+    fill: #50A2E3;
+} */
+
+/* -------------------------------------------------------- */
+
+/* Gore */
+
+/* .custom-shape-divider-top-1706898791 {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    overflow: hidden;
+    line-height: 0;
+}
+
+.custom-shape-divider-top-1706898791 svg {
+    position: relative;
+    display: block;
+    width: calc(107% + 1.3px);
+    height: 138px;
+}
+
+.custom-shape-divider-top-1706898791 .shape-fill {
+    fill: #50A2E3;
+} */
+
+/* -------------------------------------------------------- */
+
+/* Waves opacity */
+
+.custom-shape-divider-bottom-1706902197 {
+  position: absolute;
+  bottom: 110px;
+  left: 0;
+  width: 100%;
+  overflow: hidden;
+  line-height: 0;
+  transform: rotate(180deg);
+}
+
+.custom-shape-divider-bottom-1706902197 svg {
+  position: relative;
+  display: block;
+  width: calc(100% + 1.3px);
+  height: 132px;
+}
+
+.custom-shape-divider-bottom-1706902197 .shape-fill {
+  fill: #50a2e3;
+}

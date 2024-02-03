@@ -3,15 +3,21 @@
   <app-task-text [showTask]="showTask" [taskText]="taskText"> </app-task-text>
 
   <div class="owl animate__animated animate__backInDown">
-    <img src="assets/images/owl-happy.gif" alt="owl-happy GIF" />
+    <img src="{{ owlImage }}" alt="owl-GIF" />
     <!-- Sadrzaj pri otvaranju pocetne stranice -->
-    <div *ngIf="!showTask" class="tag-cloud">Tekst</div>
+    <div *ngIf="!showTask" class="tag-cloud">
+      Zdravo, ja sam tvoj pomoćnik koji će ti pomoći da uvežbaš osnovne
+      programerske sposobnosti! Klikni na dugme <strong><i>Dalje</i></strong> da
+      vidiš svoj zadatak!
+    </div>
     <!-- Sadrzaj za prikaz zadatka -->
     <div *ngIf="showTask" class="tag-cloud">
       Ovo je tvoj zadatak kojim ćeš uvežbati osnovne programerske sposobnosti!
       Da li si spreman/a?!
     </div>
   </div>
+
+  <app-shape-divider></app-shape-divider>
 
   <div class="bottom">
     <button class="action-button" (click)="onNextButtonClick()">

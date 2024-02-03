@@ -3,11 +3,12 @@ import { Component } from '@angular/core';
 import { Router } from '@angular/router';
 import { TaskTextComponent } from '../task-text/task-text.component';
 import { FormsModule } from '@angular/forms';
+import { ShapeDividerComponent } from '../shape-divider/shape-divider.component';
 
 @Component({
   selector: 'app-task-dialog',
   standalone: true,
-  imports: [CommonModule, TaskTextComponent, FormsModule],
+  imports: [CommonModule, TaskTextComponent, FormsModule, ShapeDividerComponent],
   templateUrl: './task-dialog.component.html',
   styleUrl: './task-dialog.component.css'
 })
@@ -17,21 +18,13 @@ export class TaskDialogComponent {
   miniTask!: string;
   userMessage: string = "";
   text!: string;
-  numbers: number[] = [];
-  owlImage: string = "assets/images/owl-happy.gif";
-  goalValue!: number;
-  currentSum: number = 0;
-  currentNumbers: number[] = [];
-  selectedNumbers: number[] = [];
+  owlImage: string = "assets/images/owl1.gif";
   disableInput: boolean = false;
   disableButton: boolean = false;
-  isFirstPartFinished: boolean = false;
-  firstStepStartFlag: boolean = true;
-  firstStepAnswer: boolean = false;
-  firstStepAgain: boolean = false;
-  secondStepStartFlag: boolean = true;
-  secondStepAnswer: boolean = false;
-  secondStepAgain: boolean = false;
+  disableHelpButton: boolean = false;
+  helpMessageTimeout!: any;
+  showHelp: boolean = false;
+  helpText: string = "Helphlephelphelphelp";
 
   constructor(private router: Router) {
     const state = this.router.getCurrentNavigation()?.extras.state;
@@ -40,22 +33,14 @@ export class TaskDialogComponent {
       this.miniTask = state['miniTask'];
     }
 
-    // this.numbers = this.getNumbersFromString(this.miniTask);
-    // if(this.numbers.length !== 0) {
-    //   this.text = this.miniTask.split(':')[0] + ':';  // Backend vraca ceo tekst mini zadatka sa nizom koji sledi nakon ':'
-    // } else {
-    //   this.text = this.miniTask;
-    // }
     this.text = this.miniTask;
 
-    // this.text = "Sada možemo da krenemo sa igrom pomoću koje ćeš razumeti logiku zadatka! <br><br> Ti ćeš da unosiš brojeve, a ja ću ti davati objašnjenja i reći kada je trenutak da se program završi na osnovu uslova zadatka. <br><br> Je l' može? "
-
-    // this.goalValue = this.getNumberFromText(this.taskText);
+    setTimeout(() => {
+      this.text += '<br><br> Ako ti je potrebna pomoć, možeš da klikneš na dugme "<i>Pomoć<i>"!';
+    }, 5000);
   }
 
   sendMessage() {
-    this.owlImage = "assets/images/owl-happy.gif";
-
     fetch(this.url + 'sendMessage', {
       method: "POST",
       headers: {
@@ -65,26 +50,48 @@ export class TaskDialogComponent {
 
     })
       .then((response) => response.json())
-      .then((response) => this.text = response.message);
+      .then((response) => {
+        this.text = response.message;
+
+        clearTimeout(this.helpMessageTimeout);
+        this.helpMessageTimeout = setTimeout(() => {
+          this.text += '<br><br> Ako ti je potrebna pomoć, možeš da klikneš na dugme "<i>Pomoć<i>"!';
+        }, 5000);
+
+        // Ako je korisnik dosao do kraja, menja se slika sove
+        if (response.message.includes("Novi zadatak")) {
+          this.owlImage = "assets/images/owl2.gif";
+          this.disableButton = true;
+          this.disableInput = true;
+        }
+      });
 
     this.userMessage = "";
-    // this.firstStepStartFlag = false;
+    this.showHelp = false;
+    this.disableHelpButton = false;
+  }
+
+  help() {
+    const additionalInfo: string = this.text.includes(this.miniTask) ? this.miniTask : '';  // Da zna da li da salje pomoc za uvodni zadatak
+
+    fetch(this.url + 'sendMessage', {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify({ userMessage: `HELP: ${additionalInfo}` })
+
+    })
+      .then((response) => response.json())
+      .then((response) => {
+        this.helpText = response.message;
+        this.showHelp = true;
+        this.disableHelpButton = true;  // Samo jednom moze da se klikne na dugme za pomoc
+      });
   }
 
   goHome() {
     this.router.navigateByUrl('/');
-  }
-
-  
-
-  selectNumber(num: number) {
-    const index = this.selectedNumbers.indexOf(num);
-
-    if (index === -1) {
-      this.selectedNumbers.push(num);
-    } else {
-      this.selectedNumbers.splice(index, 1);
-    }
   }
 
 }
